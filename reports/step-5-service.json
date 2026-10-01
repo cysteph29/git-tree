@@ -1,0 +1,153 @@
+{
+  "measuredAt": "2026-10-01T17:47:38.324Z",
+  "environment": {
+    "node": "v22.14.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3"
+  },
+  "method": "Geometry: 5 warm-ups, 30 samples. Service: real loader with synthetic GitHub responses and fixed 20 ms per upstream request; no external traffic. Latencies and concurrency describe this simulation, not production throughput or GitHub latency.",
+  "geometry": [
+    {
+      "branches": 1,
+      "samples": 30,
+      "layoutP50Ms": 0.02,
+      "layoutP95Ms": 0.11,
+      "geometryBytes": 3367
+    },
+    {
+      "branches": 2,
+      "samples": 30,
+      "layoutP50Ms": 0.2,
+      "layoutP95Ms": 0.29,
+      "geometryBytes": 8992
+    },
+    {
+      "branches": 10,
+      "samples": 30,
+      "layoutP50Ms": 0.82,
+      "layoutP95Ms": 1.6,
+      "geometryBytes": 25939
+    },
+    {
+      "branches": 100,
+      "samples": 30,
+      "layoutP50Ms": 2.94,
+      "layoutP95Ms": 4.47,
+      "geometryBytes": 116541
+    },
+    {
+      "branches": 1000,
+      "samples": 30,
+      "layoutP50Ms": 11.73,
+      "layoutP95Ms": 14.37,
+      "geometryBytes": 499608
+    }
+  ],
+  "service": [
+    {
+      "name": "cold-1",
+      "branches": 1,
+      "visitors": 1,
+      "elapsedMs": 107.43,
+      "visitorP50Ms": 107.36,
+      "visitorP95Ms": 107.36,
+      "upstreamRequests": 3,
+      "branchPageRequests": 1,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 3
+    },
+    {
+      "name": "cold-10",
+      "branches": 10,
+      "visitors": 1,
+      "elapsedMs": 62.62,
+      "visitorP50Ms": 62.61,
+      "visitorP95Ms": 62.61,
+      "upstreamRequests": 3,
+      "branchPageRequests": 1,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 3
+    },
+    {
+      "name": "cold-100",
+      "branches": 100,
+      "visitors": 1,
+      "elapsedMs": 67.37,
+      "visitorP50Ms": 67.35,
+      "visitorP95Ms": 67.35,
+      "upstreamRequests": 3,
+      "branchPageRequests": 1,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 3
+    },
+    {
+      "name": "cold-1000",
+      "branches": 1000,
+      "visitors": 1,
+      "elapsedMs": 269.79,
+      "visitorP50Ms": 269.77,
+      "visitorP95Ms": 269.77,
+      "upstreamRequests": 12,
+      "branchPageRequests": 10,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 12
+    },
+    {
+      "name": "50-concurrent-same-cold",
+      "branches": 1000,
+      "visitors": 50,
+      "elapsedMs": 259.96,
+      "visitorP50Ms": 259.57,
+      "visitorP95Ms": 259.65,
+      "upstreamRequests": 12,
+      "branchPageRequests": 10,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 0.24
+    },
+    {
+      "name": "50-concurrent-same-warm",
+      "branches": 1000,
+      "visitors": 50,
+      "elapsedMs": 21.53,
+      "visitorP50Ms": 20.78,
+      "visitorP95Ms": 21.16,
+      "upstreamRequests": 1,
+      "branchPageRequests": 0,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 50,
+      "upstreamRequestsPerVisitor": 0.02
+    },
+    {
+      "name": "50-sequential-same-warm",
+      "branches": 1000,
+      "visitors": 50,
+      "elapsedMs": 1079.33,
+      "visitorP50Ms": 21.5,
+      "visitorP95Ms": 22.25,
+      "upstreamRequests": 50,
+      "branchPageRequests": 0,
+      "peakUpstreamConcurrency": 1,
+      "cachedResults": 50,
+      "upstreamRequestsPerVisitor": 1
+    },
+    {
+      "name": "50-concurrent-distinct-cold",
+      "branches": 1000,
+      "visitors": 50,
+      "elapsedMs": 279.16,
+      "visitorP50Ms": 266.03,
+      "visitorP95Ms": 276.15,
+      "upstreamRequests": 600,
+      "branchPageRequests": 500,
+      "peakUpstreamConcurrency": 50,
+      "cachedResults": 0,
+      "upstreamRequestsPerVisitor": 12
+    }
+  ]
+}

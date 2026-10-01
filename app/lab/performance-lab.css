@@ -1,0 +1,18 @@
+.performance-lab { padding: 35px; max-width: 1500px; }
+.lab-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.lab-heading h1 { font-size: 48px; margin-top: 12px; }
+.lab-heading a { color: var(--green); font-size: 12px; }
+.performance-lab > p { font-size: 12px; line-height: 1.7; color: #65745c; }
+.lab-actions { display: flex; gap: 20px; align-items: center; padding: 16px 0; font-size: 12px; }
+.lab-actions select { margin-left: 10px; padding: 10px; background: #fffdf7; border: 1px solid var(--line); }
+.lab-workbench { display: flex; align-items: flex-start; gap: 25px; padding: 20px; background: #f9f8f2; border: 1px solid var(--line); }
+.lab-stage { flex-shrink: 0; }
+.lab-stage.desktop { width: min(900px, 70vw); }
+.lab-stage.narrow { width: 390px; }
+.lab-stage.narrow .tree-illustration { height: 405px; }
+.lab-inspector { min-width: 150px; max-width: 260px; padding: 20px; overflow-wrap: anywhere; }
+.lab-inspector > p:not(.eyebrow) { min-height: 100px; font: 12px/1.7 var(--mono); }
+.lab-results { overflow-x: auto; margin-top: 25px; }
+.lab-results table { border-collapse: collapse; width: 100%; font-size: 11px; }
+.lab-results th, .lab-results td { padding: 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.performance-lab pre { padding: 20px; overflow-x: auto; background: #eaeede; font: 11px/1.6 var(--mono); }
