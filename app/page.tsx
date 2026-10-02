@@ -71,20 +71,6 @@ export default function Home() {
       <span className="edition"><span className="status-dot" /> An experiment in growing code</span>
     </header>
 
-    <section className="intro" aria-labelledby="page-title">
-      <div><p className="eyebrow">A STUDY IN BRANCHES</p><h1 id="page-title">A repository,<br /><em>rooted in ink.</em></h1></div>
-      <div className="intro-copy"><p>Every repository has a shape.<br /> A trunk, a few branches, a life of its own.</p><p className="muted">A little botanical interpretation of the things we build.</p></div>
-    </section>
-
-    <section className="repository-entry" aria-label="Choose a repository">
-      {repository ? <div className="repository-summary"><div><p className="eyebrow">ROOTED IN GITHUB</p><p className="chosen-repository">{repository.name}</p></div><button className="another-button" onClick={() => { focusInput.current = true; setPhase({ status: "input" }); }}>Another repository <span aria-hidden="true">↗</span></button></div> : <form onSubmit={submit} noValidate aria-busy={loading}>
-        <label className="eyebrow" htmlFor="repository-url">PLANT A REPOSITORY</label>
-        <div className="repository-input-row"><input ref={inputRef} id="repository-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={2048} value={url} disabled={loading} aria-invalid={phase.status === "error"} aria-describedby={phase.status === "error" ? "repository-error repository-hint" : "repository-hint"} placeholder="https://github.com/owner/repository" onChange={event => setUrl(event.target.value)} /><button className="draw-button" type="submit" disabled={loading}>{loading ? "Gathering branches…" : <>Draw repository <span aria-hidden="true">↗</span></>}</button></div>
-        <p className="entry-hint" id="repository-hint">Public repositories only. No sign-in needed. Repository, branch, and file URLs are welcome.</p>
-        {phase.status === "error" && <p id="repository-error" className="entry-error" role="alert">{phase.message}{phase.retryAt && Number.isFinite(Date.parse(phase.retryAt)) && <> Try after {new Date(phase.retryAt).toLocaleString(undefined, { hour: "numeric", minute: "2-digit", month: "short", day: "numeric" })}.</>}</p>}
-      </form>}
-    </section>
-
     <p className="sr-only" role="status">{loading ? "Loading repository metadata and all branch pages." : repository ? `${repository.name} loaded with ${count} ${count === 1 ? "branch" : "branches"}.` : ""}</p>
     <section className="study" aria-label="Repository illustration" aria-busy={loading}>
       <div className="study-toolbar"><span className="eyebrow">THE SPECIMEN TABLE</span><div className="study-actions"><button className="replay-button" disabled={!count || loading} onClick={() => setReplay(value => value + 1)}><span aria-hidden="true">↻</span> Replay drawing</button></div></div>
@@ -103,13 +89,19 @@ export default function Home() {
           {count > 0 && <div className={`branch-inspector ${inspection ? "has-branch" : ""}`}><p className="eyebrow">{inspection ? inspection.name === repository?.defaultBranch ? "DEFAULT BRANCH" : "GIT BRANCH" : "A CLOSER LOOK"}</p><div className="branch-inspector-content">{inspection ? <p className="inspected-name">{inspection.name}</p> : <p className="inspection-idle">Hover or tap a branch.<br />Its name will appear here.</p>}</div><p className="inspection-keyboard">Keyboard: focus the tree, then use arrow keys.</p></div>}
           <p className="sr-only" aria-live="polite" aria-atomic="true">{inspection?.source === "keyboard" ? `${inspection.name}${inspection.name === repository?.defaultBranch ? ", default branch" : ", branch"}` : ""}</p>
           <dl className="facts"><div><dt>Total branches</dt><dd>{repository ? count.toLocaleString("en-US") : "—"}</dd></div><div><dt>{drawing?.kind === "cactus" ? "Cactus body" : "Trunk"}</dt><dd>{count ? repository!.defaultBranch : "—"}</dd></div><div><dt>Primary limbs</dt><dd>{repository ? Math.max(0, count - 1).toLocaleString("en-US") : "—"}</dd></div></dl>
-          <div className="field-note"><p className="eyebrow">FIELD NOTE</p><p>{!repository ? "The default branch becomes a trunk. Each of the others finds its own place as a limb." : count === 0 ? "No branches, no plant. An empty repository is given a little space to begin." : count === 1 ? "One branch stands on its own. An upright cactus, with no arms and nothing invented." : count === 2 ? "A single limb reaches from the trunk. Sparse growth has a quiet character all its own." : count >= 100 ? "A crowded canopy. Every branch is here. Zoom in or use the arrow keys to explore overlapping limbs." : "The default branch takes root. Each of the others becomes a limb, finding its own place along the trunk."}</p></div>
-          <p className="mapping-note">Shape is a matter of composition.<br />It doesn’t measure activity or importance.</p>
-          <div className="notes-foot"><span aria-hidden="true">✳</span><p>Same repository.<br />Same branches. Same drawing.</p></div>
         </aside>
       </div>
 
       {result && <div className="repository-provenance"><span className="eyebrow">EVERY BRANCH ACCOUNTED FOR</span><p>Branches fetched {new Date(result.fetchedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{result.cached ? " · From a recent saved result" : " · Fresh from GitHub"}</p></div>}
+    </section>
+
+    <section className="repository-entry" aria-label="Choose a repository">
+      {repository ? <div className="repository-summary"><div><p className="eyebrow">ROOTED IN GITHUB</p><p className="chosen-repository">{repository.name}</p></div><button className="another-button" onClick={() => { focusInput.current = true; setPhase({ status: "input" }); }}>Another repository <span aria-hidden="true">↗</span></button></div> : <form onSubmit={submit} noValidate aria-busy={loading}>
+        <label className="eyebrow" htmlFor="repository-url">PLANT A REPOSITORY</label>
+        <div className="repository-input-row"><input ref={inputRef} id="repository-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={2048} value={url} disabled={loading} aria-invalid={phase.status === "error"} aria-describedby={phase.status === "error" ? "repository-error repository-hint" : "repository-hint"} placeholder="https://github.com/owner/repository" onChange={event => setUrl(event.target.value)} /><button className="draw-button" type="submit" disabled={loading}>{loading ? "Gathering branches…" : <>Draw repository <span aria-hidden="true">↗</span></>}</button></div>
+        <p className="entry-hint" id="repository-hint">Public repositories only. No sign-in needed. Repository, branch, and file URLs are welcome.</p>
+        {phase.status === "error" && <p id="repository-error" className="entry-error" role="alert">{phase.message}{phase.retryAt && Number.isFinite(Date.parse(phase.retryAt)) && <> Try after {new Date(phase.retryAt).toLocaleString(undefined, { hour: "numeric", minute: "2-digit", month: "short", day: "numeric" })}.</>}</p>}
+      </form>}
     </section>
 
     <footer><p><span className="footer-marker">↳</span> A little less diagram. A little more nature.</p><span>PUBLIC REPOSITORIES <span className="footer-slash">/</span> REAL BRANCHES, DRAWN IN INK</span></footer>
