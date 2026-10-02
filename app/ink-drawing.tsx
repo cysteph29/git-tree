@@ -42,10 +42,12 @@ function Branch({ branch, trunk, maskId, outline, foliage, detail }: {
   </g>;
 }
 
-export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onInspect }: { drawing: Drawing; defaultBranch: string; onInspect: (inspection: Inspection) => void }) {
+export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onInspect, onComplete }: { drawing: Drawing; defaultBranch: string; onInspect: (inspection: Inspection) => void; onComplete?: () => void }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const sceneRef = useRef<SVGGElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
   const [ready, setReady] = useState(false);
   const id = useId();
   const timing = drawingTiming(drawing.kind === "cactus" ? "cactus" : "pine", drawing.limbs.length);
@@ -56,11 +58,13 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const animations: Animation[] = [];
     let disposed = false;
+    let fallback: number | undefined;
     const complete = () => {
-      if (disposed) return;
+      if (disposed || svg.dataset.drawingState === "complete") return;
       svg.dataset.drawingState = "complete";
       for (const animation of animations) animation.cancel();
       setReady(true);
+      onCompleteRef.current?.();
     };
     const onMotionChange = () => { if (motion.matches) complete(); };
     motion.addEventListener("change", onMotionChange);
@@ -70,7 +74,9 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
     } else {
       svg.dataset.drawingState = "drawing";
       const startTime = document.timeline.currentTime;
+      let end = 0;
       for (const element of svg.querySelectorAll<SVGElement>("[data-draw-delay]")) {
+        end = Math.max(end, Number(element.dataset.drawDelay) + Number(element.dataset.drawDuration));
         const animation = element.animate(
           [{ strokeDashoffset: 1, visibility: "visible" }, { strokeDashoffset: 0, visibility: "visible" }],
           { delay: Number(element.dataset.drawDelay), duration: Number(element.dataset.drawDuration), easing: "linear", fill: "forwards" },
@@ -84,10 +90,13 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
         // to the complete illustration instead of leaving a partial drawing.
         if (!disposed) complete();
       });
+      // `finished` only settles on a rendered frame; paused rendering would otherwise hold back the details.
+      fallback = window.setTimeout(complete, end + 500);
     }
 
     return () => {
       disposed = true;
+      window.clearTimeout(fallback);
       motion.removeEventListener("change", onMotionChange);
       for (const animation of animations) animation.cancel();
     };
