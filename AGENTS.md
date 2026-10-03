@@ -2,7 +2,7 @@
 
 Implement only one agreed implementation step at a time. Show the running result (start localhost when useful), then stop and wait for the user's feedback before beginning the next step.
 
-Current milestone: `VIEWPORT-FIT-PLAN.md`, implemented one step at a time (shared viewport budget, portrait layouts and readable details, short screens and landscape phones, acceptance checks). Active step: Step 3 — Handle short screens and landscape phones. Finish the current step, show the local result, and wait for feedback. Deployment, an opening-screen demo, branch caps/grouping and additional features remain outside this scope.
+Current milestone: `AESTHETIC-PLAN.md` Step 1 visual study is delivered; the user selected B, Full bloom (the second evergreen painting). Step 2 (paper texture and palette) is accepted. Step 3 (dark branch structure) is accepted. Step 4 (colored blossoms and their reveal) is complete and awaiting feedback. Step 5 has not started. Use only minimal checks necessary for the current change and pause promptly for review; the user explicitly requested avoiding exhaustive testing. The completed viewport-fit work remains the layout baseline; its prior final-feedback status is not changed by this study. Deployment, an opening-screen demo, branch caps/grouping and additional features remain outside this scope.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

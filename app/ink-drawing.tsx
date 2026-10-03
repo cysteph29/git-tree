@@ -25,7 +25,7 @@ function Branch({ branch, trunk, maskId, outline, foliage, detail }: {
     {branch.reveal ? <>
       <defs>
         <mask id={maskId} maskUnits="userSpaceOnUse" {...branch.revealBounds} style={{ maskType: "alpha" }}>
-          <path d={branch.reveal} pathLength={1} fill="none" stroke="white" strokeWidth={trunk ? 66 : 14} strokeLinecap="round" className="draw-stroke" {...timingAttributes(outline)} />
+          <path d={branch.reveal} pathLength={1} fill="none" stroke="white" strokeWidth={branch.revealWidth ?? (trunk ? 66 : 14)} strokeLinecap="round" className="draw-stroke" {...timingAttributes(outline)} />
         </mask>
       </defs>
       <g className="ink-core" mask={`url(#${maskId})`}>
@@ -36,7 +36,10 @@ function Branch({ branch, trunk, maskId, outline, foliage, detail }: {
       <path d={branch.outline} pathLength={1} className="branch-outline draw-stroke" {...timingAttributes(outline)} />
       <g className="branch-detail draw-stroke" {...timingAttributes(detail!)}><Strokes d={branch.detail} /></g>
     </>}
-    <g className="branch-foliage draw-stroke" {...timingAttributes(foliage)}><Strokes d={branch.foliage} /></g>
+    {branch.blossoms ? <g className="blossom-layer draw-pigment" {...timingAttributes(foliage)}>
+      {branch.blossoms.petals.map((d, index) => <path key={index} d={d} className={`blossom-tone-${index}`} />)}
+      <path d={branch.blossoms.centers} className="blossom-centers" />
+    </g> : branch.foliage && <g className="branch-foliage draw-stroke" {...timingAttributes(foliage)}><Strokes d={branch.foliage} /></g>}
   </g>;
 }
 
@@ -47,7 +50,7 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onC
   onCompleteRef.current = onComplete;
   const [ready, setReady] = useState(false);
   const id = useId();
-  const timing = drawingTiming(drawing.kind === "cactus" ? "cactus" : "pine", drawing.limbs.length);
+  const timing = drawingTiming(drawing.kind === "cactus" ? "cactus" : "flowering", drawing.limbs.length);
 
   // Fit the drawing to 84% of the viewBox, centered on (400, 460), before the first paint.
   useLayoutEffect(() => {
@@ -82,7 +85,9 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onC
       for (const element of svg.querySelectorAll<SVGElement>("[data-draw-delay]")) {
         end = Math.max(end, Number(element.dataset.drawDelay) + Number(element.dataset.drawDuration));
         const animation = element.animate(
-          [{ strokeDashoffset: 1, visibility: "visible" }, { strokeDashoffset: 0, visibility: "visible" }],
+          element.classList.contains("draw-pigment")
+            ? [{ opacity: 0, visibility: "visible" }, { opacity: 1, visibility: "visible" }]
+            : [{ strokeDashoffset: 1, visibility: "visible" }, { strokeDashoffset: 0, visibility: "visible" }],
           { delay: Number(element.dataset.drawDelay), duration: Number(element.dataset.drawDuration), easing: "linear", fill: "forwards" },
         );
         // A shared clock keeps foliage behind its limb, even for dense specimens.
@@ -108,8 +113,8 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onC
 
   return <div className="tree-explorer">
     <svg ref={svgRef} className={`tree-illustration ${drawing.kind}`} data-drawing-state="pending" viewBox="60 70 680 780" role="img" aria-busy={!ready} aria-labelledby={`${id}-title ${id}-description`}>
-    <title id={`${id}-title`}>{drawing.kind === "cactus" ? "Single upright cactus" : "Pine-inspired ink tree"}</title>
-    <desc id={`${id}-description`}>{defaultBranch} is the {drawing.kind === "cactus" ? "cactus body" : `trunk, with ${drawing.limbs.length} primary limbs for the other branches`}. All dimensions are artistic choices.</desc>
+    <title id={`${id}-title`}>{drawing.kind === "cactus" ? "Single upright cactus" : "Brush-painted tree with red and pink blossoms"}</title>
+    <desc id={`${id}-description`}>{`${defaultBranch} is the ${drawing.kind === "cactus" ? "cactus body" : `trunk, with ${drawing.limbs.length} primary limbs for the other branches`}. All dimensions${drawing.kind === "flowering" ? " and blossoms" : ""} are artistic choices.`}</desc>
     <g ref={sceneRef} className="drawing-content">
     {drawing.limbs.map((branch, index) => <Branch key={branch.name} branch={branch} maskId={`${id}-limb-${index}`} outline={timing.limbs[index].outline} foliage={timing.limbs[index].foliage} />)}
     {drawing.trunk && <Branch branch={drawing.trunk} trunk maskId={`${id}-trunk`} outline={timing.trunk} detail={timing.detail} foliage={timing.crown} />}

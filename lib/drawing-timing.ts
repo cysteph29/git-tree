@@ -1,6 +1,6 @@
 type StrokeTiming = { delay: number; duration: number };
 
-export function drawingTiming(kind: "pine" | "cactus", limbCount: number) {
+export function drawingTiming(kind: "flowering" | "cactus", limbCount: number) {
   const trunk: StrokeTiming = { delay: 120, duration: kind === "cactus" ? 1000 : 900 };
   const trunkEnd = trunk.delay + trunk.duration;
   const detail: StrokeTiming = { delay: trunkEnd, duration: 400 };

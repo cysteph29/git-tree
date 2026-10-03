@@ -1,6 +1,6 @@
 # One-screen repository result plan
 
-Status: planned; no implementation steps completed.
+Status: steps 1–4 complete. Results are in `reports/viewport-fit-validation.md`. Awaiting final feedback; not deployed.
 
 ## Goal
 

@@ -7,7 +7,7 @@ test("all fixtures preserve a one-to-one mapping, including the stress specimens
   for (const count of [0, 1, 2, 10, 100, 1000]) {
     const repo = fixture(count);
     const drawing = generateDrawing(repo);
-    assert.equal(drawing.kind, count === 0 ? "empty" : count === 1 ? "cactus" : "pine");
+    assert.equal(drawing.kind, count === 0 ? "empty" : count === 1 ? "cactus" : "flowering");
     assert.equal(drawing.limbs.length, Math.max(0, count - 1));
     assert.deepEqual([...(drawing.trunk ? [drawing.trunk.name] : []), ...drawing.limbs.map(branch => branch.name)].sort(), [...repo.branches].sort());
     assert.ok(!JSON.stringify(drawing).match(/NaN|Infinity/));
@@ -30,18 +30,22 @@ test("a missing default branch is rejected rather than inventing a trunk", () =>
   assert.throws(() => generateDrawing({ ...fixture(2), defaultBranch: "missing" }), /default branch is missing/);
 });
 
-test("tight reveal regions contain each sampled limb and its reveal stroke", () => {
+test("painted outlines and reveal strokes fit inside bounded masks", () => {
+  const points = (path: string) => [...path.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)].map(match => ({ x: Number(match[1]), y: Number(match[2]) }));
   for (const count of [2, 10, 100, 1000]) {
     const drawing = generateDrawing(fixture(count));
-    for (const limb of drawing.limbs) {
-      const bounds = limb.revealBounds!;
-      const [a, b, c, d] = limb.reveal!.match(/-?\d+(\.\d+)?,-?\d+(\.\d+)?/g)!.map(pair => pair.split(",").map(Number));
-      assert.match(limb.reveal!, /^M \S+ C \S+ \S+ \S+$/);
-      for (let i = 0; i <= 64; i++) {
-        const t = i / 64, u = 1 - t;
-        const point = { x: u ** 3 * a[0] + 3 * u ** 2 * t * b[0] + 3 * u * t ** 2 * c[0] + t ** 3 * d[0], y: u ** 3 * a[1] + 3 * u ** 2 * t * b[1] + 3 * u * t ** 2 * c[1] + t ** 3 * d[1] };
-        assert.ok(point.x - 7 >= bounds.x && point.x + 7 <= bounds.x + bounds.width);
-        assert.ok(point.y - 7 >= bounds.y && point.y + 7 <= bounds.y + bounds.height);
+    for (const branch of [drawing.trunk!, ...drawing.limbs]) {
+      const bounds = branch.revealBounds!;
+      const radius = branch.revealWidth! / 2;
+      assert.ok(radius > 0);
+      for (const p of points(branch.outline)) {
+        assert.ok(p.x >= bounds.x && p.x <= bounds.x + bounds.width);
+        assert.ok(p.y >= bounds.y && p.y <= bounds.y + bounds.height);
+      }
+      // Straight segments interpolate between these samples, so endpoints bound the whole reveal.
+      for (const p of points(branch.reveal!)) {
+        assert.ok(p.x - radius >= bounds.x && p.x + radius <= bounds.x + bounds.width);
+        assert.ok(p.y - radius >= bounds.y && p.y + radius <= bounds.y + bounds.height);
       }
       assert.ok(bounds.width * bounds.height < 800 * 900 / 5);
     }
@@ -50,7 +54,7 @@ test("tight reveal regions contain each sampled limb and its reveal stroke", () 
 
 test("drawing reveals each attachment before its limb, and each limb before its foliage", () => {
   for (const count of [2, 10, 100, 1000]) {
-    const timing = drawingTiming("pine", count - 1);
+    const timing = drawingTiming("flowering", count - 1);
     const trunkEnd = timing.trunk.delay + timing.trunk.duration;
     const crownEnd = timing.crown.delay + timing.crown.duration;
     assert.ok(timing.crown.delay >= trunkEnd);
