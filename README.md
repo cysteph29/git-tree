@@ -1,6 +1,6 @@
 # GitHub Tree
 
-Public GitHub repositories become deterministic botanical ink drawings with branch exploration. Paste a repository home URL, a `.git` URL, or a GitHub branch/file URL. The actual default branch becomes the trunk, regardless of the branch named in the URL. One branch produces an armless cactus; no branches produces an empty state.
+Public GitHub repositories become deterministic botanical ink drawings. Paste a repository home URL, a `.git` URL, or a GitHub branch/file URL. The actual default branch becomes the trunk, regardless of the branch named in the URL. One branch produces an armless cactus; no branches produces an empty state.
 
 ## Run
 
@@ -23,7 +23,7 @@ npm run build
 
 `lib/tree.ts` is the pure layout function. Repository ID, default-branch name, exact sorted branch names, and the layout version determine geometry. Commit metadata and viewport dimensions are not inputs. Branch-set changes can rebalance the tree. Decorative needle density decreases for crowded specimens, but no Git branches are omitted.
 
-The trunk draws first, then the limbs, with needles following each limb. SVG masks follow the existing geometry; normalized strokes reveal individual foliage marks. The browser's Web Animations API coordinates playback without a React render loop. The cactus takes 1.77 seconds, the ten-branch tree 3.54 seconds, and the dense experiments 4.5 seconds. Replay preserves geometry. All animations are canceled on completion, replay, specimen changes, or unmount. Reduced-motion preferences display the complete illustration immediately, including when enabled during playback.
+The trunk draws first, then the limbs, with needles following each limb. SVG masks follow the existing geometry; normalized strokes reveal individual foliage marks. The browser's Web Animations API coordinates playback without a React render loop. The cactus takes 1.77 seconds, the ten-branch tree 3.54 seconds, and the dense experiments 4.5 seconds. The drawing plays once per repository. All animations are canceled on completion, specimen changes, or unmount. Reduced-motion preferences display the complete illustration immediately, including when enabled during playback.
 
 `GET /api/repository?url=...` validates the URL, retrieves public metadata, and follows every branch page. No partial response is rendered or cached. A fresh metadata request checks public visibility even on cache hits; another check occurs after a complete fetch. Renames are followed only within the GitHub API. Unexpected default-branch changes or duplicate pagination trigger one complete retry. This is a complete pagination pass, not an atomic historical snapshot while a repository changes.
 
@@ -31,9 +31,7 @@ Successful branch lists are cached for five minutes in this server process (up t
 
 The Node tests exercise real parser, pagination, cache, visibility, redirect, timeout, and error-handling code with controlled GitHub responses. The 0/1/2/10/100/1,000-branch fixtures remain in layout tests; the main page uses only real GitHub data.
 
-After the drawing finishes, hover a trunk or limb to see its name in the fixed panel. Mouse clicks do not pin inspection. Touch/pen taps inspect a branch until another tap, background tap, or pan. Needle decorations are not separate targets. Targeting uses sampled primary curves, screen-pixel tolerance, deterministic ties, and two pixels of hysteresis. Cactus interiors are targetable.
-
-Drag to pan, scroll/pinch to zoom, or use the zoom buttons. Zoom is bounded to 0.5–8 times the fitted view. “Fit tree” restores the complete drawing. Focus the tree with Tab and use arrow keys to inspect branches; Shift+arrows pan, +/- zoom, Home fits, and Escape clears inspection. Keyboard targets are brought into view. Geometry stays unchanged during exploration and resize; D3 updates only the viewport transform.
+The tree is a static illustration. Before the first paint, the drawing is scaled to fill 84% of its frame and centered; it cannot be dragged, zoomed or inspected, and individual branch names are not shown. Screen readers announce it as one image described by its default branch and primary limb count. The details below it list the total branches, the default branch and the primary limb count.
 
 ## Performance lab
 
@@ -43,10 +41,10 @@ npm run build
 TREE_PERF_LAB=1 npm run start -- --port 3002
 ```
 
-Open http://127.0.0.1:3002/lab and run the desktop and narrow-canvas measurements. Keep the entire drawing visible while a run is active. The lab exercises the actual drawing and interaction code. Results include visibility checks; discard a run if the tab or canvas was hidden or the viewport changed. A narrow canvas on desktop hardware is not a physical phone test. `/lab` returns 404 unless `TREE_PERF_LAB=1` is set on the server.
+Open http://127.0.0.1:3002/lab and run the desktop and narrow-canvas measurements. Keep the entire drawing visible while a run is active. The lab exercises the actual drawing code. Results include visibility checks; discard a run if the tab or canvas was hidden or the viewport changed. A narrow canvas on desktop hardware is not a physical phone test. `/lab` returns 404 unless `TREE_PERF_LAB=1` is set on the server.
 
 `npm run measure` writes `reports/step-5-service.json` using controlled upstream responses, without GitHub traffic. It measures request sharing, cache behavior and pagination, not production capacity. The browser reports and final acceptance notes are in `reports/`.
 
-The final refinement limits SVG reveal masks to each branch's bounds and computes pine hit points from the existing geometry rather than repeatedly querying browser paths. Hit testing skips distant bounding boxes and ranks eligible limbs by centerline distance. These changes preserve every branch and all illustration paths. Dense trees can still overlap heavily; zoom and keyboard traversal remain available. No cap, sampling, grouping or dense-layout policy has been imposed.
+The final refinement limits SVG reveal masks to each branch's bounds. This preserves every branch and all illustration paths. Dense trees can still overlap heavily, and with zoom removed there is no way to look closer. No cap, sampling, grouping or dense-layout policy has been imposed.
 
 The six-step implementation ends with local validation and a reviewable app. A public deployment has not been performed. Before a broader launch, validate on physical mobile devices and decide the dense-repository experience using the recorded evidence. Multiple server instances would also need coordinated caching and upstream request limits; the current cache and request sharing are process-local. The opening-screen demo, 3D and export/share features remain deferred.

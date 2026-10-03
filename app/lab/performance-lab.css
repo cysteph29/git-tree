@@ -10,8 +10,6 @@
 .lab-stage.desktop { width: min(900px, 70vw); }
 .lab-stage.narrow { width: 390px; }
 .lab-stage.narrow .tree-illustration { height: 405px; }
-.lab-inspector { min-width: 150px; max-width: 260px; padding: 20px; overflow-wrap: anywhere; }
-.lab-inspector > p:not(.eyebrow) { min-height: 100px; font: 12px/1.7 var(--mono); }
 .lab-results { overflow-x: auto; margin-top: 25px; }
 .lab-results table { border-collapse: collapse; width: 100%; font-size: 11px; }
 .lab-results th, .lab-results td { padding: 12px; text-align: left; border-bottom: 1px solid var(--line); }

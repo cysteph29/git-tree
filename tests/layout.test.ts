@@ -35,7 +35,11 @@ test("tight reveal regions contain each sampled limb and its reveal stroke", () 
     const drawing = generateDrawing(fixture(count));
     for (const limb of drawing.limbs) {
       const bounds = limb.revealBounds!;
-      for (const point of limb.hitPoints!) {
+      const [a, b, c, d] = limb.reveal!.match(/-?\d+(\.\d+)?,-?\d+(\.\d+)?/g)!.map(pair => pair.split(",").map(Number));
+      assert.match(limb.reveal!, /^M \S+ C \S+ \S+ \S+$/);
+      for (let i = 0; i <= 64; i++) {
+        const t = i / 64, u = 1 - t;
+        const point = { x: u ** 3 * a[0] + 3 * u ** 2 * t * b[0] + 3 * u * t ** 2 * c[0] + t ** 3 * d[0], y: u ** 3 * a[1] + 3 * u ** 2 * t * b[1] + 3 * u * t ** 2 * c[1] + t ** 3 * d[1] };
         assert.ok(point.x - 7 >= bounds.x && point.x + 7 <= bounds.x + bounds.width);
         assert.ok(point.y - 7 >= bounds.y && point.y + 7 <= bounds.y + bounds.height);
       }

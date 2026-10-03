@@ -29,18 +29,12 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
 .result-stage { position: relative; height: 640px; height: max(520px, 100svh - 56px); padding: 64px 0 56px; display: flex; align-items: center; justify-content: center; }
 .result-stage .tree-explorer { height: 100%; }
 .result-stage .tree-illustration { height: 100%; }
-.result-stage .viewport-hint { bottom: -56px; line-height: 44px; }
-.result-stage .viewport-controls { top: -48px; }
 /* Delayed so a response arriving just after the fade doesn't flash the status. */
 .stage-status { margin: 0; color: #6e7961; font: italic 22px var(--serif); animation: stage-status-in 300ms ease 200ms both; }
 @keyframes stage-status-in { from { opacity: 0; } to { opacity: 1; } }
 .back-button { position: absolute; top: 16px; left: 0; z-index: 2; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 10px; margin-left: -10px; border: 0; border-radius: 3px; background: transparent; font: 12px 'DM Sans', sans-serif; color: var(--green); cursor: pointer; }
 .back-button > span { font-size: 17px; line-height: 1; }
 .back-button:hover { color: var(--ink); background: #e9eddf; }
-.replay-button { position: absolute; left: 0; bottom: 0; display: flex; align-items: center; gap: 7px; min-height: 44px; border: 0; padding: 0; background: transparent; font: 11px 'DM Sans', sans-serif; color: var(--green); cursor: pointer; }
-.replay-button > span { font-size: 18px; line-height: 1; }
-.replay-button:hover { color: var(--ink); }
-
 .result-details { max-width: 720px; margin: 0 auto; padding: 24px 0 80px; transition: opacity 500ms ease, transform 500ms ease; }
 .result-details[data-revealed="false"] { opacity: 0; transform: translateY(8px); visibility: hidden; }
 .details-title { margin: 0; font-family: var(--serif); font-size: 48px; font-weight: 400; letter-spacing: -.7px; line-height: 1.1; overflow-wrap: anywhere; }
@@ -49,32 +43,11 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
 .facts div { min-width: 0; padding: 16px 16px 16px 0; }
 .facts dt { color: #7b8371; font-size: 11px; }
 .facts dd { margin: 6px 0 0; font: 13px var(--mono); overflow-wrap: anywhere; }
-.branch-inspector { border: 1px solid #dbe0d0; background: #f1f3e9; padding: 14px 16px; }
-.branch-inspector .eyebrow { font-size: 8px; color: #667859; }
-.branch-inspector-content { height: 64px; overflow-y: auto; margin-top: 9px; scrollbar-width: thin; }
-.inspected-name { margin: 0; font: 13px/1.7 var(--mono); color: #334a29; overflow-wrap: anywhere; }
-.inspection-idle { margin: 0; font: italic 21px/1.4 var(--serif); color: #7a876d; }
-.inspection-keyboard { font-size: 9px; line-height: 1.6; color: #839075; margin: 6px 0 0; }
 .provenance { margin: 20px 0 0; color: #7c876f; font-size: 11px; }
 
 .tree-illustration { display: block; height: 545px; width: 100%; overflow: visible; }
 .tree-explorer { position: relative; width: 100%; min-width: 0; }
-.tree-illustration.explorable { overflow: hidden; touch-action: none; cursor: grab; }
-.tree-illustration[data-panning="true"] { cursor: grabbing; }
-.tree-illustration:focus-visible { outline: 1px dashed #718663; outline-offset: 3px; }
 .tree-illustration .ink-branch { pointer-events: none; }
-.ink-branch.is-inspected { stroke: #182b13; }
-.ink-branch.is-inspected .branch-outline { stroke-width: 2.35; }
-.ink-branch.is-inspected .branch-foliage { opacity: 1; }
-.viewport-controls { position: absolute; top: 5px; right: 0; z-index: 2; display: flex; align-items: center; gap: 3px; background: #f5f3eded; padding: 3px; border: 1px solid #d9dece; border-radius: 4px; }
-.viewport-controls button { border: 0; background: transparent; color: #526449; font: 12px 'DM Sans', sans-serif; min-width: 34px; min-height: 34px; cursor: pointer; border-radius: 2px; padding: 0 9px; }
-.viewport-controls button[data-viewport-action="in"], .viewport-controls button[data-viewport-action="out"] { font-size: 19px; }
-.viewport-controls button[data-viewport-action="fit"] { border-left: 1px solid #d9dece; border-radius: 0; margin-left: 4px; }
-.viewport-controls button:hover { background: #e9eddf; }
-.viewport-controls button:disabled { opacity: .4; cursor: default; }
-.zoom-value { color: #7b876f; font: 9px var(--mono); min-width: 33px; text-align: center; }
-.viewport-hint { position: absolute; bottom: 0; right: 0; font-size: 9px; color: #79856d; margin: 0; pointer-events: none; }
-.viewport-hint span { margin: 0 6px; }
 .draw-stroke { stroke-dasharray: 1; stroke-dashoffset: 1; visibility: hidden; }
 .tree-illustration[data-drawing-state="complete"] .draw-stroke { stroke-dasharray: none; stroke-dashoffset: 0; visibility: visible; }
 .tree-illustration[data-drawing-state="complete"] .ink-core { mask: none; }
@@ -104,9 +77,7 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
   main { padding: 0 20px; }
   .home-title { margin-bottom: 26px; } .home-input { font-size: 16px; padding: 14px 12px; }
   .result-stage { height: max(460px, 100svh - 48px); padding: 56px 0 48px; }
-  .viewport-controls { padding: 0; } .viewport-controls button { min-width: 38px; min-height: 44px; padding: 0 7px; } .zoom-value { min-width: 29px; font-size: 8px; }
-  .viewport-hint { font-size: 8px; } .result-stage .viewport-hint { bottom: -48px; }
-  .back-button { top: 6px; } .result-stage .viewport-controls { top: -50px; }
+  .back-button { top: 6px; }
   .result-details { padding-bottom: 56px; } .details-title { font-size: 38px; }
   .facts { grid-template-columns: 1fr; margin: 22px 0 20px; }
   .facts div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 13px 0; }

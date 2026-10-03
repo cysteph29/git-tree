@@ -5,7 +5,6 @@ import { generateDrawing } from "../lib/tree";
 import { parseRepositoryUrl } from "../lib/repository-url";
 import { canMountTree, canSubmit, initialFlow, reduceFlow } from "../lib/reveal-flow";
 import { InkDrawing } from "./ink-drawing";
-import type { Inspection } from "./use-tree-explorer";
 
 const FADE_FALLBACK_MS = 400;
 
@@ -17,8 +16,6 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [flow, dispatch] = useReducer(reduceFlow, initialFlow);
   const { phase, view } = flow;
-  const [replay, setReplay] = useState(0);
-  const [inspection, setInspection] = useState<Inspection>(null);
   const [drawn, setDrawn] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
@@ -53,8 +50,6 @@ export default function Home() {
   function goHome() {
     pending.current?.abort();
     pending.current = null;
-    setInspection(null);
-    setReplay(0);
     setDrawn(false);
     focusInput.current = true;
     dispatch({ type: "back" });
@@ -71,7 +66,6 @@ export default function Home() {
     const request = ++requestId.current;
     pending.current = controller;
     setDrawn(false);
-    setReplay(0);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     dispatch({ type: "submit", request, reducedMotion });
     if (!reducedMotion) fadeTimer.current = window.setTimeout(finishLeaving, FADE_FALLBACK_MS);
@@ -110,18 +104,14 @@ export default function Home() {
   return <>{status}<main className="result">
     <section className="result-stage" aria-label="Repository illustration" aria-busy={!detailsShown}>
       <button ref={backRef} className="back-button" type="button" onClick={goHome}><span aria-hidden="true">←</span> Back</button>
-      {!canMountTree(flow) || !repository ? <p className="stage-status" aria-hidden="true">Gathering branches…</p> : drawing!.kind === "empty" ? <div className="empty-state"><Sprig /><h2>Not yet rooted.</h2><p>This repository has no branches.<br />There’s nothing to draw just yet.</p></div> : <>
-        <InkDrawing key={`${repository.id}:${replay}`} drawing={drawing!} defaultBranch={repository.defaultBranch} onInspect={setInspection} onComplete={showDetails} />
-        <button className="replay-button" onClick={() => setReplay(value => value + 1)}><span aria-hidden="true">↻</span> Replay drawing</button>
-      </>}
+      {!canMountTree(flow) || !repository ? <p className="stage-status" aria-hidden="true">Gathering branches…</p> : drawing!.kind === "empty" ? <div className="empty-state"><Sprig /><h2>Not yet rooted.</h2><p>This repository has no branches.<br />There’s nothing to draw just yet.</p></div> :
+        <InkDrawing key={repository.id} drawing={drawing!} defaultBranch={repository.defaultBranch} onComplete={showDetails} />}
     </section>
 
     {repository && <section className="result-details" aria-label="Repository details" data-revealed={detailsShown} inert={!detailsShown}>
       <h2 className="details-title">{repository.name.split("/").pop()}</h2>
       <p className="details-name">{repository.name}</p>
       <dl className="facts"><div><dt>Total branches</dt><dd>{count.toLocaleString("en-US")}</dd></div><div><dt>Default branch</dt><dd>{count ? repository.defaultBranch : "—"}</dd></div><div><dt>Primary limbs</dt><dd>{Math.max(0, count - 1).toLocaleString("en-US")}</dd></div></dl>
-      {count > 0 && <div className="branch-inspector"><p className="eyebrow">{inspection ? inspection.name === repository.defaultBranch ? "DEFAULT BRANCH" : "GIT BRANCH" : "A CLOSER LOOK"}</p><div className="branch-inspector-content">{inspection ? <p className="inspected-name">{inspection.name}</p> : <p className="inspection-idle">Hover or tap a branch to see its name.</p>}</div><p className="inspection-keyboard">Keyboard: focus the tree, then use arrow keys.</p></div>}
-      <p className="sr-only" aria-live="polite" aria-atomic="true">{inspection?.source === "keyboard" ? `${inspection.name}${inspection.name === repository.defaultBranch ? ", default branch" : ", branch"}` : ""}</p>
       <p className="provenance">Branches fetched {new Date(result!.fetchedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{result!.cached ? " · From a recent saved result" : " · Fresh from GitHub"}</p>
     </section>}
   </main></>;

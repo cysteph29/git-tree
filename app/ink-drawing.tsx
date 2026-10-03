@@ -1,9 +1,8 @@
 "use client";
 
-import { memo, useEffect, useId, useRef, useState } from "react";
+import { memo, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { Drawing, InkBranch } from "../lib/tree";
 import { drawingTiming } from "../lib/drawing-timing";
-import { useTreeExplorer, type Inspection } from "./use-tree-explorer";
 
 type Timing = { delay: number; duration: number };
 const timingAttributes = ({ delay, duration }: Timing) => ({ "data-draw-delay": delay, "data-draw-duration": duration });
@@ -23,7 +22,6 @@ function Branch({ branch, trunk, maskId, outline, foliage, detail }: {
   detail?: Timing;
 }) {
   return <g data-branch={branch.name} className={trunk ? "ink-branch ink-trunk" : "ink-branch"}>
-    <path d={trunk ? branch.outline : branch.reveal} className="hit-centerline" fill="none" stroke="none" aria-hidden="true" />
     {branch.reveal ? <>
       <defs>
         <mask id={maskId} maskUnits="userSpaceOnUse" {...branch.revealBounds} style={{ maskType: "alpha" }}>
@@ -42,16 +40,22 @@ function Branch({ branch, trunk, maskId, outline, foliage, detail }: {
   </g>;
 }
 
-export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onInspect, onComplete }: { drawing: Drawing; defaultBranch: string; onInspect: (inspection: Inspection) => void; onComplete?: () => void }) {
+export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onComplete }: { drawing: Drawing; defaultBranch: string; onComplete?: () => void }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const sceneRef = useRef<SVGGElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
   const [ready, setReady] = useState(false);
   const id = useId();
   const timing = drawingTiming(drawing.kind === "cactus" ? "cactus" : "pine", drawing.limbs.length);
-  useTreeExplorer(svgRef, sceneRef, wrapperRef, drawing, onInspect);
+
+  // Fit the drawing to 84% of the viewBox, centered on (400, 460), before the first paint.
+  useLayoutEffect(() => {
+    const scene = sceneRef.current!;
+    const bounds = scene.getBBox();
+    const scale = Math.min(680 * 0.84 / Math.max(bounds.width, 1), 780 * 0.84 / Math.max(bounds.height, 1));
+    scene.setAttribute("transform", `translate(${400 - (bounds.x + bounds.width / 2) * scale},${460 - (bounds.y + bounds.height / 2) * scale}) scale(${scale})`);
+  }, [drawing]);
 
   useEffect(() => {
     const svg = svgRef.current!;
@@ -86,7 +90,7 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
         animations.push(animation);
       }
       void Promise.all(animations.map(animation => animation.finished)).then(complete, () => {
-        // Cancellation on replay/unmount is expected; a live failure falls back
+        // Cancellation on unmount is expected; a live failure falls back
         // to the complete illustration instead of leaving a partial drawing.
         if (!disposed) complete();
       });
@@ -102,9 +106,8 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
     };
   }, [drawing]);
 
-  return <div className="tree-explorer" ref={wrapperRef}>
-    <div className="viewport-controls" role="group" aria-label="Tree view controls"><button type="button" data-viewport-action="out" aria-label="Zoom out" disabled={!ready}>−</button><span className="zoom-value" aria-hidden="true">100%</span><button type="button" data-viewport-action="in" aria-label="Zoom in" disabled={!ready}>+</button><button type="button" data-viewport-action="fit" disabled={!ready}>Fit tree</button></div>
-    <svg ref={svgRef} className={`tree-illustration explorable ${drawing.kind}`} data-drawing-state="pending" viewBox="60 70 680 780" role="group" aria-busy={!ready} tabIndex={ready ? 0 : -1} aria-label="Explore repository branches" aria-describedby={`${id}-description ${id}-instructions`}>
+  return <div className="tree-explorer">
+    <svg ref={svgRef} className={`tree-illustration ${drawing.kind}`} data-drawing-state="pending" viewBox="60 70 680 780" role="img" aria-busy={!ready} aria-labelledby={`${id}-title ${id}-description`}>
     <title id={`${id}-title`}>{drawing.kind === "cactus" ? "Single upright cactus" : "Pine-inspired ink tree"}</title>
     <desc id={`${id}-description`}>{defaultBranch} is the {drawing.kind === "cactus" ? "cactus body" : `trunk, with ${drawing.limbs.length} primary limbs for the other branches`}. All dimensions are artistic choices.</desc>
     <g ref={sceneRef} className="drawing-content">
@@ -113,7 +116,5 @@ export const InkDrawing = memo(function InkDrawing({ drawing, defaultBranch, onI
     <g className="ground draw-stroke" {...timingAttributes(timing.ground)}><Strokes d={drawing.ground} /></g>
     </g>
     </svg>
-    <p id={`${id}-instructions`} className="sr-only">Arrow keys inspect branches. Shift and arrow keys pan. Plus and minus zoom. Home fits the tree. Escape clears inspection. Tab leaves the tree.</p>
-    <p className="viewport-hint" role="status">{ready ? <>Drag to move <span>·</span> Scroll or pinch to zoom</> : "Drawing your branches…"}</p>
   </div>;
 });

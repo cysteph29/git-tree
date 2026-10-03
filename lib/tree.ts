@@ -1,4 +1,4 @@
-import { boundsForPoints, type Bounds } from "./hit-testing.ts";
+import { boundsForPoints, type Bounds, type Point } from "./bounds.ts";
 
 export type Repository = {
   id: number;
@@ -7,8 +7,7 @@ export type Repository = {
   branches: string[];
 };
 
-type Point = { x: number; y: number };
-export type InkBranch = { name: string; outline: string; detail: string; foliage: string; reveal?: string; revealBounds?: Bounds; hitPoints?: Point[] };
+export type InkBranch = { name: string; outline: string; detail: string; foliage: string; reveal?: string; revealBounds?: Bounds };
 export type Drawing = {
   kind: "empty" | "cactus" | "pine";
   trunk: InkBranch | null;
@@ -95,7 +94,6 @@ export function generateDrawing(repository: Repository): Drawing {
   const trunk: InkBranch = {
     name: repository.defaultBranch,
     revealBounds: boundsForPoints(trunkEdge, 34),
-    hitPoints: [...trunkEdge.map(p => ({ x: p.x - p.width, y: p.y })), ...[...trunkEdge].reverse().map(p => ({ x: p.x + p.width, y: p.y }))],
     reveal: `M ${trunkEdge.map(p => point(p)).join(" L ")}`,
     outline: trunkOutline,
     detail: bark,
@@ -135,7 +133,7 @@ export function generateDrawing(repository: Repository): Drawing {
         detail += `M ${point(mark)} l ${side * 4},2 `;
       }
     }
-    return { name, outline, detail, foliage, reveal: `M ${point(start)} C ${point(control1)} ${point(control2)} ${point(end)}`, revealBounds: boundsForPoints([start, control1, control2, end], 8), hitPoints: Array.from({ length: 65 }, (_, i) => curve(start, control1, control2, end, i / 64)) };
+    return { name, outline, detail, foliage, reveal: `M ${point(start)} C ${point(control1)} ${point(control2)} ${point(end)}`, revealBounds: boundsForPoints([start, control1, control2, end], 8) };
   });
   return { kind: "pine", trunk, limbs, ground };
 }

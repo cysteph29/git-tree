@@ -2,6 +2,8 @@
 
 Status: implemented (steps 1–6). Validation results and remaining limitations are in `reports/repo-reveal-validation.md`.
 
+Superseded in part by `TREE-INTERACTION-REMOVAL-PLAN.md`: replay, zoom and fit controls, panning, and branch inspection (including the branch inspector in the details) have since been removed. The references to them below are kept as a record of this plan.
+
 ## Intended experience
 
 1. On page load, show the heading **What does your repo look like** with a repository URL input directly below it, centered on the screen.
