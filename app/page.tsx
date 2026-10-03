@@ -89,7 +89,7 @@ export default function Home() {
   }
 
   const branches = `${count.toLocaleString("en-US")} ${count === 1 ? "branch" : "branches"}`;
-  const status = <p className="sr-only" role="status">{loading ? "Loading the repository and all of its branches." : !repository ? "" : !count ? `${repository.name} has no branches. Details are below.` : detailsShown ? `${repository.name} drawn with ${branches}. Details are below the tree.` : `Drawing ${repository.name}, ${branches}.`}</p>;
+  const status = <p className="sr-only" role="status">{loading ? "Loading the repository and all of its branches." : !repository ? "" : !count ? `${repository.name} has no branches. Repository details follow.` : detailsShown ? `${repository.name} drawn with ${branches}. Repository details follow the illustration.` : `Drawing ${repository.name}, ${branches}.`}</p>;
 
   if (view !== "stage") return <>{status}<main className="home">
     <form className={`home-entry${view === "leaving" ? " is-leaving" : ""}`} inert={view === "leaving"} onSubmit={submit} noValidate aria-busy={loading} onTransitionEnd={event => { if (event.target === event.currentTarget && event.propertyName === "opacity") finishLeaving(); }}>
@@ -102,8 +102,8 @@ export default function Home() {
   </main></>;
 
   return <>{status}<main className="result">
+    <button ref={backRef} className="back-button" type="button" onClick={goHome}><span aria-hidden="true">←</span> Back</button>
     <section className="result-stage" aria-label="Repository illustration" aria-busy={!detailsShown}>
-      <button ref={backRef} className="back-button" type="button" onClick={goHome}><span aria-hidden="true">←</span> Back</button>
       {!canMountTree(flow) || !repository ? <p className="stage-status" aria-hidden="true">Gathering branches…</p> : drawing!.kind === "empty" ? <div className="empty-state"><Sprig /><h2>Not yet rooted.</h2><p>This repository has no branches.<br />There’s nothing to draw just yet.</p></div> :
         <InkDrawing key={repository.id} drawing={drawing!} defaultBranch={repository.defaultBranch} onComplete={showDetails} />}
     </section>
@@ -111,8 +111,7 @@ export default function Home() {
     {repository && <section className="result-details" aria-label="Repository details" data-revealed={detailsShown} inert={!detailsShown}>
       <h2 className="details-title">{repository.name.split("/").pop()}</h2>
       <p className="details-name">{repository.name}</p>
-      <dl className="facts"><div><dt>Total branches</dt><dd>{count.toLocaleString("en-US")}</dd></div><div><dt>Default branch</dt><dd>{count ? repository.defaultBranch : "—"}</dd></div><div><dt>Primary limbs</dt><dd>{Math.max(0, count - 1).toLocaleString("en-US")}</dd></div></dl>
-      <p className="provenance">Branches fetched {new Date(result!.fetchedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{result!.cached ? " · From a recent saved result" : " · Fresh from GitHub"}</p>
+      <dl className="facts"><div><dt>Total branches</dt><dd>{count.toLocaleString("en-US")}</dd></div><div><dt>Default branch</dt><dd>{count ? repository.defaultBranch : "—"}</dd></div></dl>
     </section>}
   </main></>;
 }

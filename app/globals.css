@@ -4,7 +4,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--paper); font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
 body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 10; opacity: .13; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23888' opacity='.28' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E"); }
-main { max-width: 1400px; margin: 0 auto; padding: 0 64px; }
+main { --gutter: 64px; max-width: 1400px; margin: 0 auto; padding: 0 var(--gutter); }
 .eyebrow { margin: 0; font-family: var(--mono); font-size: 10px; font-weight: 400; letter-spacing: 1.7px; line-height: 1.5; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 button:focus-visible, a:focus-visible { outline: 2px solid #546b44; outline-offset: 4px; }
@@ -25,26 +25,32 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
 .draw-button:hover { background: #43553a; }
 .draw-button:disabled { opacity: .65; cursor: wait; }
 
-/* The stage is slightly shorter than the viewport so the details peek above the fold. */
-.result-stage { position: relative; height: 640px; height: max(520px, 100svh - 56px); padding: 64px 0 56px; display: flex; align-items: center; justify-content: center; }
-.result-stage .tree-explorer { height: 100%; }
+/* Back, the illustration and the details share one screen. The stage grows to the height its width allows,
+   and any remaining height is split above and below the tree and details. If they cannot fit readably, the page scrolls. */
+main.result { --stage-gap: clamp(4px, 1.5vh, 12px); --stage-max: calc((min(100vw, 1400px) - 2 * var(--gutter)) * 780 / 680 + 2 * var(--stage-gap)); height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(200px, var(--stage-max)) auto minmax(0, 1fr); padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: max(var(--gutter), env(safe-area-inset-left)); padding-right: max(var(--gutter), env(safe-area-inset-right)); }
+/* Sized to the drawing's aspect ratio and anchored to the details, so no gap opens between them. */
+.result-stage { grid-row: 3; container-type: size; min-height: 0; min-width: 0; padding: var(--stage-gap) 0; display: flex; align-items: flex-end; justify-content: center; }
+.result-stage .tree-explorer { flex: none; width: min(100cqw, 100cqh * 680 / 780); height: min(100cqh, 100cqw * 780 / 680); }
 .result-stage .tree-illustration { height: 100%; }
+.result-stage .stage-status, .result-stage .empty-state { align-self: center; }
 /* Delayed so a response arriving just after the fade doesn't flash the status. */
 .stage-status { margin: 0; color: #6e7961; font: italic 22px var(--serif); animation: stage-status-in 300ms ease 200ms both; }
 @keyframes stage-status-in { from { opacity: 0; } to { opacity: 1; } }
-.back-button { position: absolute; top: 16px; left: 0; z-index: 2; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 10px; margin-left: -10px; border: 0; border-radius: 3px; background: transparent; font: 12px 'DM Sans', sans-serif; color: var(--green); cursor: pointer; }
+.back-button { grid-row: 1; justify-self: start; margin-top: clamp(4px, 2vh, 16px); display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 10px; margin-left: -10px; border: 0; border-radius: 3px; background: transparent; font: 12px 'DM Sans', sans-serif; color: var(--green); cursor: pointer; }
 .back-button > span { font-size: 17px; line-height: 1; }
 .back-button:hover { color: var(--ink); background: #e9eddf; }
-.result-details { max-width: 720px; margin: 0 auto; padding: 24px 0 80px; transition: opacity 500ms ease, transform 500ms ease; }
-.result-details[data-revealed="false"] { opacity: 0; transform: translateY(8px); visibility: hidden; }
-.details-title { margin: 0; font-family: var(--serif); font-size: 48px; font-weight: 400; letter-spacing: -.7px; line-height: 1.1; overflow-wrap: anywhere; }
-.details-name { margin: 6px 0 0; font: 11px var(--mono); color: #7c8472; overflow-wrap: anywhere; }
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 28px 0 24px; border-top: 1px solid #e3e5db; border-bottom: 1px solid #e3e5db; }
-.facts div { min-width: 0; padding: 16px 16px 16px 0; }
+.result-details { grid-row: 4; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 0 clamp(16px, 4vh, 32px); transition: opacity 500ms ease; }
+.result-details[data-revealed="false"] { opacity: 0; visibility: hidden; }
+/* The rise stays within the details' bottom padding so it never adds a momentary scrollbar. */
+.result-details > * { transition: transform 500ms ease; }
+.result-details[data-revealed="false"] > * { transform: translateY(8px); }
+.details-title { margin: 0; font-family: var(--serif); font-size: clamp(28px, min(9vw, 5.6vh), 48px); font-weight: 400; letter-spacing: -.7px; line-height: 1.1; overflow-wrap: anywhere; }
+.details-name { margin: 4px 0 0; font: 11px/1.5 var(--mono); color: #7c8472; overflow-wrap: anywhere; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: clamp(10px, 2vh, 18px) 0 0; border-top: 1px solid #e3e5db; border-bottom: 1px solid #e3e5db; }
+.facts div { min-width: 0; padding: clamp(8px, 1.5vh, 12px) 16px clamp(8px, 1.5vh, 12px) 0; }
+.facts div + div { padding-right: 0; }
 .facts dt { color: #7b8371; font-size: 11px; }
 .facts dd { margin: 6px 0 0; font: 13px var(--mono); overflow-wrap: anywhere; }
-.provenance { margin: 20px 0 0; color: #7c876f; font-size: 11px; }
-
 .tree-illustration { display: block; height: 545px; width: 100%; overflow: visible; }
 .tree-explorer { position: relative; width: 100%; min-width: 0; }
 .tree-illustration .ink-branch { pointer-events: none; }
@@ -52,8 +58,8 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
 .tree-illustration[data-drawing-state="complete"] .draw-stroke { stroke-dasharray: none; stroke-dashoffset: 0; visibility: visible; }
 .tree-illustration[data-drawing-state="complete"] .ink-core { mask: none; }
 @media (prefers-reduced-motion: reduce) {
-  .home-entry, .result-details { transition: none; }
-  .result-details[data-revealed="false"] { transform: none; }
+  .home-entry, .result-details, .result-details > * { transition: none; }
+  .result-details[data-revealed="false"] > * { transform: none; }
   .stage-status { animation: none; }
   .tree-illustration .draw-stroke { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; visibility: visible !important; }
   .tree-illustration .ink-core { mask: none; }
@@ -72,15 +78,24 @@ main.home { min-height: 100vh; min-height: 100svh; display: flex; align-items: c
 .empty-state h2 { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: 39px; margin: 22px 0 12px; }
 .empty-state p { font-size: 12px; line-height: 1.9; color: #8b9280; }
 
-@media (max-width: 1000px) { main { padding: 0 32px; } }
+@media (max-width: 1000px) { main { --gutter: 32px; } }
 @media (max-width: 700px) {
-  main { padding: 0 20px; }
+  main { --gutter: 20px; }
   .home-title { margin-bottom: 26px; } .home-input { font-size: 16px; padding: 14px 12px; }
-  .result-stage { height: max(460px, 100svh - 48px); padding: 56px 0 48px; }
-  .back-button { top: 6px; }
-  .result-details { padding-bottom: 56px; } .details-title { font-size: 38px; }
-  .facts { grid-template-columns: 1fr; margin: 22px 0 20px; }
-  .facts div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 13px 0; }
+  .details-name { font-size: 12px; }
+  .facts dt { font-size: 12px; }
+}
+/* Short, wide screens (landscape phones, short desktop windows) put the details beside the tree. */
+@media (max-height: 600px) and (min-width: 560px) {
+  /* The tree column is capped at the width the tree can use at this height; outer columns center the pair. */
+  main.result { --tree-width: calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 44px - clamp(4px, 2vh, 16px) - 2 * var(--stage-gap)) * 680 / 780); grid-template-columns: 1fr minmax(0, var(--tree-width)) minmax(220px, 340px) 1fr; grid-template-rows: auto minmax(200px, 1fr); }
+  .back-button { grid-column: 1 / -1; }
+  .result-stage { grid-row: 2; grid-column: 2; align-items: center; }
+  main.result:not(:has(.result-details)) .result-stage { grid-column: 1 / -1; }
+  .result-details { grid-row: 2; grid-column: 3; align-self: center; width: auto; margin: 0 0 0 clamp(24px, 4vw, 56px); padding: var(--stage-gap) 0; }
+}
+@media (max-width: 299px) {
+  .facts { grid-template-columns: 1fr; }
+  .facts div { padding-right: 0; }
   .facts div + div { border-top: 1px solid #e3e5db; }
-  .facts dd { margin: 0; font-size: 12px; text-align: right; }
 }
